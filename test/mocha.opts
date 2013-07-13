@@ -1,0 +1,4 @@
+--colors
+--compilers coffee:coffee-script
+--check-leaks
+--recursive
