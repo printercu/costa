@@ -1,6 +1,6 @@
 {
   "name": "costa",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Coffee classes for web application",
   "main": "index.js",
   "directories": {
@@ -24,9 +24,15 @@
     "coffee-script": "*",
     "underscore": "*",
     "lingo": "*",
-    "flow-coffee": "*",
-    "coffee_classkit": "*",
-    "debug": "*"
+    "flow-coffee": ">= 1.1",
+    "coffee_classkit": ">= 0.3",
+    "debug": "*",
+
+    "express": ">= 3.3",
+    "commander": ">= 2.0",
+    "cluster_master": ">= 0.1",
+    "fibers": ">= 1.0",
+    "sync": ">= 0.2"
   },
   "devDependencies": {
     "mocha": "*"
