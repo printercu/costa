@@ -15,9 +15,9 @@ class Record extends require('coffee_classkit').Module
     'persisted_validations'
 
   @exportAttrs 'id'
-  @exportAttrs only: 'api',
+  @exportAttrs for: 'api',
     'errors'
-    '_isPersisted' 
+    '_isPersisted'
 
   @new: (data) -> new @ data
 
