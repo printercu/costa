@@ -3,7 +3,7 @@ classkit  = require 'coffee_classkit'
 
 Errors    = require './errors'
 
-module.exports = 
+module.exports =
 class Validations extends require('coffee_classkit').Module
   @extendsWithProto().concern()
 
@@ -31,9 +31,10 @@ class Validations extends require('coffee_classkit').Module
         filter
       ]
 
-  # instance methods
+  Object.defineProperty @::, 'errors', get: -> @_errors ||= new Errors @
+
   runValidations: (args..., callback) ->
-    @errors   = new Errors @
+    @errors.clear()
     @isValid  = false
     err_cb    = (err) -> callback?.call @, err, @isValid
     @runCallbacks 'validation',
