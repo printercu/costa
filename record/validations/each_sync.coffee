@@ -1,4 +1,4 @@
-classkit  = require 'coffee_classkit'
+Args = require '../../support/args'
 
 module.exports =
 class EachSync extends require('coffee_classkit').Module
@@ -6,7 +6,7 @@ class EachSync extends require('coffee_classkit').Module
 
   class @ClassMethods
     validatesEachSync: (args, validator) ->
-      [options, fields] = classkit.findOptions args
+      [options, fields] = Args.findOptions args
       @validate options, (callback) ->
         for field in fields
           validator.call @, field, options

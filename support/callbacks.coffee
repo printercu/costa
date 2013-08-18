@@ -1,7 +1,7 @@
-cs        = require 'coffee-script'
-_         = require 'underscore'
-flow      = require 'flow-coffee'
-classkit  = require 'coffee_classkit'
+cs      = require 'coffee-script'
+_       = require 'underscore'
+flow    = require 'flow-coffee'
+Args    = require './args'
 
 module.exports =
 class Callbacks extends require('coffee_classkit').Module
@@ -21,7 +21,7 @@ class Callbacks extends require('coffee_classkit').Module
     #
     # Find out how to extract skipped options. Maybe concat arrays with _or_.
     setCallback: (name, type, args...) ->
-      [options, [filter]] = classkit.findOptions args
+      [options, [filter]] = Args.findOptions args
       item    = [[filter, normalize_options options]]
       origin  = @[key name, type]
       @[key name, type] = if options.prepend
@@ -31,7 +31,7 @@ class Callbacks extends require('coffee_classkit').Module
       @_compileCallbacks name, type
 
     skipCallback: (name, type, args...) ->
-      [skip_options, [filter]] = classkit.findOptions args
+      [skip_options, [filter]] = Args.findOptions args
       @[key name, type] = if filter
         _.compact @[key name, type].map ([item, options]) ->
           return arguments[0] if item != filter

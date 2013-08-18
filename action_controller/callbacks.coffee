@@ -2,6 +2,7 @@ cs        = require 'coffee-script'
 _         = require 'underscore'
 lingo     = require 'lingo'
 classkit  = require 'coffee_classkit'
+Args      = require '../support/args'
 
 module.exports =
 class Callbacks extends require('coffee_classkit').Module
@@ -27,7 +28,7 @@ class Callbacks extends require('coffee_classkit').Module
     classkit.aliasMethod @, 'skipAroundFilter', 'skipBeforeFilter'
 
     normalize_args = (args) ->
-      [options, [filter]] = classkit.findOptions args
+      [options, [filter]] = Args.findOptions args
       [
         if:     normalize_option options.only
         unless: normalize_option options.except

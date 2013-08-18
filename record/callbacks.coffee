@@ -1,7 +1,7 @@
-cs        = require 'coffee-script'
-_         = require 'underscore'
-lingo     = require 'lingo'
-classkit  = require 'coffee_classkit'
+cs      = require 'coffee-script'
+_       = require 'underscore'
+lingo   = require 'lingo'
+Args    = require '../support/args'
 
 module.exports =
 class Callbacks extends require('coffee_classkit').Module
@@ -21,7 +21,7 @@ class Callbacks extends require('coffee_classkit').Module
 
   class @ClassMethods
     defineModelCallbacks: ->
-      [options, actions] = classkit.findOptions arguments
+      [options, actions] = Args.findOptions arguments
       options = _.extend
         only: ['before', 'after']
         options

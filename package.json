@@ -1,6 +1,6 @@
 {
   "name": "costa",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Coffee classes for web application",
   "main": "index.js",
   "directories": {

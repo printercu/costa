@@ -1,7 +1,7 @@
-_         = require 'underscore'
-classkit  = require 'coffee_classkit'
+_       = require 'underscore'
+Args    = require '../support/args'
 
-Errors    = require './errors'
+Errors  = require './errors'
 
 module.exports =
 class Validations extends require('coffee_classkit').Module
@@ -19,7 +19,7 @@ class Validations extends require('coffee_classkit').Module
 
     # private helpers
     normalize_options = (args) ->
-      [options, [filter]] = classkit.findOptions args
+      [options, [filter]] = Args.findOptions args
       if options.on
         on_clauses = for mode in _.flatten [options.on]
           "@_validation_context is '#{mode}'"

@@ -1,5 +1,5 @@
-classkit  = require 'coffee_classkit'
-_         = require 'underscore'
+_     = require 'underscore'
+Args  = require '../support/args'
 
 module.exports =
 class Attributes extends require('coffee_classkit').Module
@@ -15,7 +15,7 @@ class Attributes extends require('coffee_classkit').Module
       @_manageAttrs false, arguments...
 
     _manageAttrs: (add, args...) ->
-      [options, fields] = classkit.findOptions args
+      [options, fields] = Args.findOptions args
       types = if options.for then _.flatten [options.for] else ['default']
       for type in types
         @["_attrExported_#{type}"] = _.uniq if add
