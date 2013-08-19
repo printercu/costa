@@ -1,9 +1,5 @@
-classkit  = require 'coffee_classkit'
-
-AbstractController = require './abstract_controller'
-
 module.exports =
-class RequestController extends AbstractController
+class RequestController extends require './abstract_controller'
   @extendsWithProto()
 
   # As of there are all methods are public in js, here is convention about

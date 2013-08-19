@@ -4,7 +4,7 @@ module.exports =
 class Record extends require('coffee_classkit').Module
   @extendsWithProto()
 
-  @includeAll module, prefix: './record',
+  @includeAll module, prefix: './',
     'attributes'
 
     'model_schema'
