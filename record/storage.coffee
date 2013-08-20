@@ -22,8 +22,7 @@ class Storage extends require('coffee_classkit').Module
 
     create: (data, callback) ->
       item = new @(data)
-      item.save (err) =>
-        callback?.call @, err, item
+      item.save (err) -> callback? err, item
 
     attr: (id, attr, callback) ->
       @get id, (err, item) ->
@@ -31,6 +30,17 @@ class Storage extends require('coffee_classkit').Module
         _.extend item, attr
         @set id, item, callback
       @
+
+    findEach: (options, fn, callback) ->
+      @findInBatches options,
+        (batch, batch_callback) ->
+          flow.exec(
+            ->
+              for item in batch
+                do (cb = @multi()) -> fn item, cb
+            batch_callback
+          )
+        callback
 
   # instance methods
   save: ->

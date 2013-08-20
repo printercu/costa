@@ -11,6 +11,9 @@ class Redis extends require('coffee_classkit').Module
       @kv.incr @_keySeq('id'), callback
       @
 
+    maxId: (callback) ->
+      @kv.get @_keySeq('id'), callback
+
     get: (id, callback) ->
       key = @_key id
       # debug "GET: #{key}"
@@ -35,22 +38,8 @@ class Redis extends require('coffee_classkit').Module
       @kv.set key, data, callback
       @
 
-    getMulti: (ids, callback) ->
-      return callback? null, {} unless ids.length
-      do new flow
-        context:  @
-        error:    callback
-        blocks: [
-          (flow) ->
-            for id in ids
-              do (cb = flow.multi()) => @get id, cb
-          (err, results) ->
-            items = {}
-            # TODO: sort?
-            for [err, item] in results
-              items[item.id] = item
-            callback? null, items
-        ]
+    delete: (id, callback) ->
+      @kv.del @_key(id), callback
       @
 
     getMulti: (ids, callback) ->
@@ -68,8 +57,4 @@ class Redis extends require('coffee_classkit').Module
           item.__proto__ = @prototype if item
           result.push item
         callback? null, result
-      @
-
-    delete: (id, callback) ->
-      @kv.del @_key(id), callback
       @
