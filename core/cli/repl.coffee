@@ -5,9 +5,7 @@ module.exports = (programm, context = {}) ->
     else require 'coffee-script/lib/coffee-script/repl'
   ).start
     prompt: "eve@#{type}> "
-  .on 'exit', ->
-    app.server.close().unref() if app?.server?._handle # undocumented
-    process.emit 'close'
+  .on 'exit', -> process.exit()
 
   repl.context.programm = programm
   repl.context[key] = val for key, val of context
