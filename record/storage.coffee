@@ -36,6 +36,7 @@ class Storage extends require('coffee_classkit').Module
         (batch, batch_callback) ->
           flow.exec(
             ->
+              @expectMulti()
               for item in batch
                 do (cb = @multi()) -> fn item, cb
             batch_callback
