@@ -9,99 +9,82 @@ Inspired by Rails. Is kept tiny to be fast as fire.
 ### Controller
 
 ```coffee
-Post          = require '../models/post'
-parse_params  = require '../lib/parse_params'
+Post = require '../models/post'
+resource_class = Post
 
 module.exports =
 class PostsController extends require './application_controller'
   @extendsWithProto()
 
-  @beforeFilter 'authenticate', only: ['new', 'create', 'edit', 'destroy']
-  @beforeFilter 'findItem', only: ['show', 'edit', 'update', 'destroy']
+  @beforeFilter 'buildResource', only: ['new', 'create']
+  @beforeFilter 'findResource', only: ['show', 'edit', 'update', 'delete']
 
-  # actions
   indexAction: ->
-    params = @searchParams()
-    Post.search params, @handleErrors (err, {items, stats}) =>
-      posts = for item in items
-        if item then item.exportFor 'api' else item
-      @render posts: posts, params: params
+    resource_class.all @handleErrors (err, @collection) =>
+      @render {@collection}
 
   newAction: ->
-    @render post: new Post
+    @render {@resource}
 
   createAction: ->
-    item = new Post @itemParams()
-    item.account_id = @req.account.id
-    item.save (err) =>
+    @resource.save (err) =>
       if err
-        if item.errors.hasAny
+        if @resource.errors.hasAny
           @res.format
-            json: -> @status(422).json item.exportFor 'api' # unprocessable_entity
-            html: ->
-              @flash 'error', item.errors.first()
-              @redirect '/posts/new'
+            json: => @res.status(422).jsonp @resource.exportFor 'api' # unprocessable_entity
+            html: =>
+              @res.flash 'error', @resource.errors.first()
+              @res.redirect "/posts/new"
         else
           @next(err)
       else
-        url = "/posts/#{item.id}"
+        url = "/posts/#{@resource.id}"
         @res.format
-          json: -> @status(201).set('Location', url).json item.exportFor 'api' # created
-          html: ->
-            @flash 'Post created'
-            @redirect url
+          json: => @res.status(201).set('Location', url).jsonp @resource.exportFor 'api' # created
+          html: =>
+            @res.flash 'Item created'
+            @res.redirect url
 
   showAction: ->
-    @render post: @item.exportFor 'api'
+    @render {@resource}
 
   editAction: ->
-    @render post: @item.exportFor 'api'
+    @render {@resource}
 
   updateAction: ->
-    item = @item.update @itemParams(), (err) => setImmediate =>
+    @resource.update @itemParams, (err) =>
       if err
-        if item.errors.hasAny
+        if @resource.errors.hasAny
           @res.format
-            json: -> @status(422).json item.exportFor 'api' # unprocessable_entity
-            html: ->
-              @flash 'error', item.errors.first()
-              @redirect "/posts/#{@req.params.id}/edit"
+            json: => @res.status(422).jsonp @resource.exportFor 'api' # unprocessable_entity
+            html: =>
+              @res.flash 'error', @resource.errors.first()
+              @res.redirect "/posts/#{@resource.id}/edit"
         else
           @next(err)
       else
+        url = "/posts/#{@resource.id}"
         @res.format
-          json: ->
-            if @req.query._response? || @req.body._response?
-              @json post: item.exportFor 'api'
-            else
-              @status(204).end() # no_content
-          html: ->
-            @flash 'notice', 'Post saved'
-            @redirect "/posts/#{@req.params.id}/edit"
+          json: => @res.jsonp @resource.exportFor 'api'
+          html: =>
+            @res.flash 'Item updated'
+            @res.redirect url
 
-  destroyAction: ->
-    @item.destroy @handleErrors =>
-      @res.format
-        json: -> @status(204).end() # no_content
-        html: ->
-          @flash 'Post deleted'
-          @redirect '/posts'
+  buildResource: (callback) ->
+    @resource = resource_class.create @itemParams
+    callback()
 
-  # filters
-  findItem: (callback) ->
-    Post.find @req.params.id, @handleErrors (err, item) =>
-      @item = item
+  findResource: (callback) ->
+    resource_class.find @req.param('id'), @handleErrors (err, @resource) =>
       callback()
 
-  # strong params
-  itemParams: ->
-    result = @params Post.exportedAttrs()...
-    result.image = image if image = @fileParam 'image'
-    result
+  allowed_params = [
+    'title'
+    'body_md'
+  ]
 
-  searchParams: ->
-    str: @req.query.str
-
+  Object.defineProperty @::, 'itemParams', get: ->
+    @params allowed_params...
 ```
 
 And now just call `PostsController.dispatch(action, req, res, next)`
@@ -110,27 +93,45 @@ the way you like with `action` one of `index, new, create, show, edit, update, d
 ### Model
 
 ```coffee
+marked  = require 'marked'
+hljs    = require 'highlight.js'
+_       = require 'lodash'
+
 module.exports =
 class Post extends require './base_record'
   @extendsWithProto()
 
-  @include require './concerns/with_image'
+  @include require './concerns/with_fixtures'
 
-  @exportAttrs 'author_id',
-    'title'
-    'content'
-    'is_published'
-    'tags'
+  @MARKED_OPTIONS =
+    highlight: (code, lang) ->
+      code = 'coffeescript' if code is 'coffee'
+      try
+        return hljs.highlight(lang, code).value
+      catch error
+        return hljs.highlightAuto(code).value
 
-  @validatesPresenceOf 'author_id', 'title', 'content'
+  @exportAttrs 'body', 'body_md', 'title', 'created_at'
 
-  @beforeSave 'refreshTags'
+  @validatesPresenceOf 'body_md', 'title'
 
-  refreshTags: (callback) ->
-    some_tag_parser.parse @content, (err, tags) =>
+  @beforeCreate (callback) ->
+    @created_at = new Date
+    callback()
+
+  @beforeSave (callback) ->
+    @compileBody()
+    callback()
+
+  @all: (callback) ->
+    @maxId (err, max_id) =>
       return callback err if err
-      @tags = tags
-      callback()
+      @getMulti [1..max_id], (err, items) ->
+        return callback err if err
+        callback err, _.compact items
+
+  compileBody: ->
+    @body = marked @body_md, @constructor.MARKED_OPTIONS
 ```
 
 ## More documentation in tests & source
