@@ -9,16 +9,6 @@ class Callbacks extends require('coffee_classkit').Module
 
   @include require '../support/callbacks'
 
-  @includedBlock = ->
-    @defineModelCallbacks 'create', 'update', 'save', 'destroy'
-
-    @aliasMethodChain method, 'callbacks' for method in [
-      'save'
-      '_createRecord'
-      '_updateRecord'
-      'destroy'
-    ]
-
   class @ClassMethods
     defineModelCallbacks: ->
       [options, actions] = Args.findOptions arguments
@@ -34,6 +24,15 @@ class Callbacks extends require('coffee_classkit').Module
         @[lingo.camelcase("around #{action}")] =
           @[lingo.camelcase("before #{action}")]
 
+  @includedBlock = ->
+    @defineModelCallbacks 'create', 'update', 'save', 'destroy'
+
+    @aliasMethodChain method, 'callbacks' for method in [
+      'save'
+      '_createRecord'
+      '_updateRecord'
+      'destroy'
+    ]
   # instance methods
   callbacks_and_methods =
     save:     'save'

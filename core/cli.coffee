@@ -24,7 +24,7 @@ find_root = ->
   false
 
 root = find_root()
-require cli_file unless root
+require app_file unless root
 
 if programm.cluster
   if master = require('cluster_master').runMaster(pidfile: programm.pid)
@@ -34,7 +34,7 @@ if programm.cluster
         cluster:  require 'cluster'
     return
 
-Application = require "#{root}/etc/application"
+Application = require "#{root}/#{app_file}"
 app = new Application(root: root)
 app.initialize (err) ->
   if err
