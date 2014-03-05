@@ -18,10 +18,9 @@ describe 'RequestController', ->
 
     it 'sets req, res, action & next properties', (done) ->
       @TestController::indexAction = (callback) ->
-        assert.equal @action, 'index'
-        assert.equal @req,    'req'
-        assert.equal @res,    'res'
-        assert.equal @next,   next
+        assert.equal @actionName, 'index'
+        assert.equal @request,    'req'
+        assert.equal @response,   'res'
         @runs.push 'index'
         setImmediate callback
       controller = @TestController.dispatch 'index', 'req', 'res', next = ->

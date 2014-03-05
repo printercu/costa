@@ -16,10 +16,10 @@ describe 'AbstractController', ->
       @controller.runs = []
 
     it 'returns instance', ->
-      assert.equal @controller.process('indexAction'), @controller
+      assert.equal @controller.process('index'), @controller
 
     it 'runs action method', (done) ->
-      @controller.process 'indexAction', (err) =>
+      @controller.process 'index', (err) =>
         assert.equal err, null
         assert.deepEqual @controller.runs, ['index']
         done()

@@ -11,7 +11,7 @@ describe 'ActionController', ->
         indexAction: (callback) ->
           @runs.push 'index'
           callback()
-        
+
       @controller = new @TestController
       @controller.action = 'index'
       @controller.runs = []
@@ -20,7 +20,7 @@ describe 'ActionController', ->
       @TestController.beforeFilter (callback) ->
         @runs.push 'before'
         callback()
-      @controller.process 'indexAction', =>
+      @controller.process 'index', =>
         assert.deepEqual @controller.runs, ['before', 'index']
         done()
 
@@ -28,7 +28,7 @@ describe 'ActionController', ->
       @TestController.afterFilter (callback) ->
         assert.deepEqual @runs, ['index']
         done()
-      @controller.process 'indexAction', (callback) ->
+      @controller.process 'index', (callback) ->
         throw new Error 'Should not run this callback'
 
     it 'runs all callbacks', (done) ->
@@ -44,7 +44,7 @@ describe 'ActionController', ->
         callback.after (callback) ->
           @runs.push 'around_after'
           callback()
-      @controller.process 'indexAction', ->
+      @controller.process 'index', ->
         assert.deepEqual @runs, ['before', 'around_before', 'index', 'after', 'around_after']
         done()
 
@@ -58,11 +58,11 @@ describe 'ActionController', ->
         @TestController.beforeFilter except: 'index', (callback) ->
           @runs.push 'before'
           callback()
-        @controller.process 'indexAction', ->
+        @controller.process 'index', ->
           assert.deepEqual @runs, ['index']
           @runs = []
           @action = 'show'
-          @process 'showAction', ->
+          @process 'show', ->
             assert.deepEqual @runs, ['before', 'show']
             done()
 
@@ -70,11 +70,11 @@ describe 'ActionController', ->
         @TestController.beforeFilter only: 'index', (callback) ->
           @runs.push 'before'
           callback()
-        @controller.process 'indexAction', ->
+        @controller.process 'index', ->
           assert.deepEqual @runs, ['before', 'index']
           @runs = []
           @action = 'show'
-          @process 'showAction', ->
+          @process 'show', ->
             assert.deepEqual @runs, ['show']
             done()
 

@@ -2,8 +2,11 @@ module.exports =
 class AbstractController extends require('coffee_classkit').Module
   @extendsWithProto()
 
+  @abstract: true
+
   # As of property lookup is much faster then search in array _actionMethods_
-  # property is no longer in use. It's left for debug purposes.
+  # property is no longer in use in ActionController.
+  # It's used in socket controller to bind actions.
   Object.defineProperty @, 'actionMethods', get: ->
     @hasOwnProperty('_actionMethods') && @_actionMethods ||
       @reloadActionMethods()
@@ -15,10 +18,20 @@ class AbstractController extends require('coffee_classkit').Module
         methods = Object.keys klass.prototype
         klass = klass.__super__?.constructor
         methods
-    ).filter (m) -> /^.*Action$/.test m
+    ).map((m) -> m.match(/^(.+)Action$/)?[1])
+    .filter (m) -> m
 
-  process: (method, callback) ->
-    @[method] callback
+  # Setups controller for action and performs action.
+  # @next is used to access callback from any point of controller.
+  process: (action, callback) ->
+    @actionName = action
+    @next = callback
+    @_processAction()
+
+  # Call the action. Override this in a subclass to modify the
+  # behavior around processing an action.
+  _processAction: ->
+    @["#{@actionName}Action"] @next
     @
 
   # Use it to define error handler for controller. Wrap any callback to handle

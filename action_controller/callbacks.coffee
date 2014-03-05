@@ -1,4 +1,3 @@
-cs        = require 'coffee-script'
 _         = require 'underscore'
 lingo     = require 'lingo'
 classkit  = require 'coffee_classkit'
@@ -12,7 +11,7 @@ class Callbacks extends require('coffee_classkit').Module
 
   @includedBlock = ->
     @defineCallbacks 'process'
-    @aliasMethodChain 'process', 'callbacks'
+    @aliasMethodChain '_processAction', 'callbacks'
 
   class @ClassMethods
     ['before', 'after'].forEach (type) =>
@@ -37,10 +36,15 @@ class Callbacks extends require('coffee_classkit').Module
       ]
 
     normalize_option = (options) ->
-      ("@action is '#{action}'" for action in _.compact _.flatten [options])
+      ("@actionName is '#{action}'" for action in _.compact _.flatten [options])
         .join ' or '
 
-  processWithCallbacks: (method, callback) ->
-    @runCallbacks 'process',
-      (flow) -> @processWithoutCallbacks method, flow
-      callback
+  # Replaces @next with flow callback. Use @_next to access original callback.
+  _processActionWithCallbacks: ->
+    @_original_next = @next
+    do @next = @prepareCallbacks 'process',
+      @_processActionWithoutCallbacks
+      @_next = ->
+        @next = @_original_next
+        @_original_next = null
+        @next arguments...
