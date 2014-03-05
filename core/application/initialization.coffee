@@ -7,8 +7,18 @@ module.exports =
 class Initialization extends require('coffee_classkit').Module
   @extendsWithProto().concern()
 
+  class @ClassMethods
+    initBlocks: [
+      'loadInitializers'
+      'autoload'
+      'initDatabase'
+      'initMiddleware'
+    ]
+
   initialize: (callback) ->
     final_cb = (err) => callback?.call @, err
+
+    @initBlocks = @constructor.initBlocks
 
     require("#{@root}/etc/env").call @
 
@@ -54,6 +64,10 @@ class Initialization extends require('coffee_classkit').Module
 
   initGlobals: (callback) ->
     try require("#{@root}/etc/globals")
+    callback()
+
+  # stub
+  initDatabase: (callback) ->
     callback()
 
   initMiddleware: (callback) ->

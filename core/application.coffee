@@ -1,5 +1,6 @@
 classkit  = require 'coffee_classkit'
 express   = require 'express'
+Costa     = require '../'
 
 # FIXME: seems to be too dirty
 # Creates express application instance and mounts all Application hierarchy
@@ -13,7 +14,7 @@ module.exports = class Application extends Function
   @express: express
 
   constructor: ({@root} = {}) ->
-    self = express()
+    self = @constructor.express()
     self.constructor = @constructor
     self.__proto__ = @__proto__
     self.root = @root
